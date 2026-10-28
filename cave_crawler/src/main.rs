@@ -33,6 +33,6 @@ fn main() {
         println!("{}", pid);
     }
 
-    println("Total Processes Found: {}", ids.len());
+    println!("Total Processes Found: {}", ids.len());
 
 }
