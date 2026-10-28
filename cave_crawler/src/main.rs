@@ -2,6 +2,7 @@ use std::fs;
 use std::collections::HashSet;
 use std::thread;
 use std::time::Duration;
+std::io::stdin();
 
 fn get_process_ids() -> HashSet<u32> {
     let mut ids: HashSet<u32> = HashSet::new();
@@ -29,6 +30,8 @@ fn get_process_ids() -> HashSet<u32> {
 
 
 fn main() {
+    let mut count = 10;
+    while count > 0{
     let ids_a = get_process_ids();
 
     thread::sleep(Duration::from_secs(2));
@@ -43,6 +46,19 @@ fn main() {
 
     for pid in differ{
 
-        println!("New processes: {}", pid);
+        println!("New processes (pids): {}", pid);
     }
+    if count == 1{
+        let mut answer = String::new();
+
+        io::stdin().read_line(&mut answer).expect("Failed to read line");
+        println!("Keep checking processes? (y/n) ");
+        let lowered = answer.trim().to_lowercase();
+        if lowered == "y" || lowered == "yes"{
+            count = 11;
+        }
+    }
+    count--;
+}
+    
 }
