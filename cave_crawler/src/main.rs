@@ -2,7 +2,7 @@ use std::fs;
 use std::collections::HashSet;
 use std::thread;
 use std::time::Duration;
-std::io::stdin();
+use std::io;
 
 fn get_process_ids() -> HashSet<u32> {
     let mut ids: HashSet<u32> = HashSet::new();
@@ -58,7 +58,7 @@ fn main() {
             count = 11;
         }
     }
-    count--;
+    count-= 1;
 }
     
 }
