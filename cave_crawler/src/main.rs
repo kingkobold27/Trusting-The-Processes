@@ -1,10 +1,11 @@
 use std::fs;
 use std::collections::HashSet;
-
+use std::thread;
+use std::time::Duration;
 
 fn get_process_ids() -> HashSet<u32> {
     let mut ids: HashSet<u32> = HashSet::new();
-
+    //create a mutable hashset
     let entries = fs::read_dir("/proc").expect("Failed to read /proc");
     //this retrieves the directory entries from /proc, the expect is the exception 
 
@@ -20,6 +21,7 @@ fn get_process_ids() -> HashSet<u32> {
 
         if let Ok(pid) = name.parse::<u32>(){
             ids.insert(pid);
+            //insert pid into hashset
         }
     }
     ids
@@ -27,12 +29,20 @@ fn get_process_ids() -> HashSet<u32> {
 
 
 fn main() {
-    let ids = get_process_ids();
+    let ids_a = get_process_ids();
 
-    for pid in &ids{
-        println!("{}", pid);
+    thread::sleep(Duration::from_secs(2));
+
+    let ids_b = get_process_ids();
+
+    let differ = ids_b.difference(&ids_a);
+    
+    println!("Snapshot A Processes Found: {}", ids_a.len());
+
+    println!("Snapshot B Processes Found: {}", ids_b.len());
+
+    for pid in differ{
+
+        println!("New processes: {}", pid);
     }
-
-    println!("Total Processes Found: {}", ids.len());
-
 }
