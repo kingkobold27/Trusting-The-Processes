@@ -1,7 +1,6 @@
 use std::collections::HashSet;
 use std::fs;
 use std::io;
-use std::io::Write;
 use std::thread;
 use std::time::{Duration, Instant};
 
@@ -37,10 +36,9 @@ fn main() {
         .expect("Failed to read");
     let num: i32 = cont.trim().parse().unwrap();
     if num == 1{
+            println!("Press 'q' to end.");
         loop {
             let duration = Duration::from_secs(2);
-            println!("Press 'q' to end.");
-            io::stdout().flush().unwrap();
 
             let mut quit = String::new();
             io::stdin()
