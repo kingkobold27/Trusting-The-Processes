@@ -68,7 +68,7 @@ fn main() {
             }
 
             let start = Instant::now();
-            if start.elapsed() < duration{
+            if start.elapsed() > duration{
                 continue;
             }
 
