@@ -32,9 +32,10 @@ fn main() {
     println!("Continous Scan (1) or Burst? (2)");
     println!("Please enter 1 or 2: ");
     io::stdin()
-        .read_line(&mut cont)
+        .read_line( &mut cont)
         .expect("Failed to read");
-    if cont == "1"{
+    let num: i32 = cont.trim().parse().unwrap();
+    if num == 1{
         let start = true;
         while start{
 
@@ -56,37 +57,37 @@ fn main() {
         }
     }
     else{
-    let mut count = 10;
-    while count > 0 {
-        let ids_a = get_process_ids();
+        let mut count = 10;
+        while count > 0 {
+            let ids_a = get_process_ids();
 
-        thread::sleep(Duration::from_secs(2));
+            thread::sleep(Duration::from_secs(2));
 
-        let ids_b = get_process_ids();
+            let ids_b = get_process_ids();
 
-        let differ = ids_b.difference(&ids_a);
+            let differ = ids_b.difference(&ids_a);
 
-        println!("Snapshot A Processes Found: {}", ids_a.len());
+            println!("Snapshot A Processes Found: {}", ids_a.len());
 
-        println!("Snapshot B Processes Found: {}", ids_b.len());
+            println!("Snapshot B Processes Found: {}", ids_b.len());
 
-        for pid in differ {
-            println!("New processes (pids): {}", pid);
-        }
-        if count == 1 {
-            let mut answer = String::new();
-
-            println!("Keep checking processes? (y/n) ");
-            io::stdin()
-                .read_line(&mut answer)
-                .expect("Failed to read line");
-
-            let lowered = answer.trim().to_lowercase();
-            if lowered == "y" || lowered == "yes" {
-                count = 11;
+            for pid in differ {
+                println!("New processes (pids): {}", pid);
             }
+            if count == 1 {
+                let mut answer = String::new();
+
+                println!("Keep checking processes? (y/n) ");
+                io::stdin()
+                    .read_line(&mut answer)
+                    .expect("Failed to read line");
+
+                let lowered = answer.trim().to_lowercase();
+                if lowered == "y" || lowered == "yes" {
+                    count = 11;
+                }
+            }
+            count -= 1;
         }
-        count -= 1;
-    }
 }
 }
