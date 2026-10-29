@@ -28,6 +28,34 @@ fn get_process_ids() -> HashSet<u32> {
 }
 
 fn main() {
+    let mut cont = String::new();
+    println!("Continous Scan (1) or Burst? (2)");
+    println!("Please enter 1 or 2: ");
+    io::stdin()
+        .read_line(&mut cont)
+        .expect("Failed to read");
+    if cont == "1"{
+        let start = true;
+        while start{
+
+            let ids_a = get_process_ids();
+
+            thread::sleep(Duration::from_secs(2));
+
+            let ids_b = get_process_ids();
+
+            let differ = ids_b.difference(&ids_a);
+
+            println!("Snapshot A Processes Found: {}", ids_a.len());
+
+            println!("Snapshot B Processes Found: {}", ids_b.len());
+
+            for pid in differ {
+                println!("New processes (pids): {}", pid);
+            }
+        }
+    }
+    else{
     let mut count = 10;
     while count > 0 {
         let ids_a = get_process_ids();
@@ -60,4 +88,5 @@ fn main() {
         }
         count -= 1;
     }
+}
 }
