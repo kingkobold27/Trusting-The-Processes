@@ -67,14 +67,16 @@ fn main() {
                 proc.push(pid);
             }
 
-            if command == "q"{
-                println!("All new processes: {:#?}", proc);
-                break;
-            }
             let start = Instant::now();
             if start.elapsed() < duration{
                 continue;
             }
+
+            if command == "q"{
+                println!("All new processes: {:#?}", proc);
+                break;
+            }
+            
             
             
         }
