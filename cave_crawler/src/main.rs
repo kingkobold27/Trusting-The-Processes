@@ -40,12 +40,6 @@ fn main() {
         loop {
             let duration = Duration::from_secs(2);
 
-            let mut quit = String::new();
-            io::stdin()
-                .read_line(&mut quit)
-                .expect("Failed to read");
-            let command = quit.trim();
-
             let mut proc: Vec<&u32> = vec![];
 
             let ids_a = get_process_ids();
@@ -70,6 +64,12 @@ fn main() {
                 continue;
             }
 
+            let mut quit = String::new();
+            io::stdin()
+                .read_line(&mut quit)
+                .expect("Failed to read");
+            let command = quit.trim();
+            
             if command == "q"{
                 println!("All new processes: {:#?}", proc);
                 break;
