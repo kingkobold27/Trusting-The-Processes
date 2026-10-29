@@ -3,6 +3,7 @@ use std::fs;
 use std::io;
 use std::thread;
 use std::time::{Duration, Instant};
+use crossbeam_channel::unbounded;
 
 fn get_process_ids() -> HashSet<u32> {
     let mut ids: HashSet<u32> = HashSet::new();
@@ -36,15 +37,30 @@ fn main() {
         .expect("Failed to read");
     let num: i32 = cont.trim().parse().unwrap();
     if num == 1{
+            let (tx, rx) = unbounded();
+            thread::spawn(move || {
+                loop{
+                    let mut quit = String::new();
+                    if io::stdin().read_line(&mut quit).is_ok(){
+                        if quit.trim() == "q"{
+                            let _ = tx.send(());
+                            break;
+                        }
+                    }
+                }
+            });
             println!("Press 'q' to end.");
         loop {
             let duration = Duration::from_secs(2);
 
-            let mut proc: Vec<&u32> = vec![];
+            let mut proc: Vec<u32> = vec![];
 
             let ids_a = get_process_ids();
 
             thread::sleep(Duration::from_secs(2));
+            if rx.try_recv().is_ok(){
+                break;
+            }
 
             let ids_b = get_process_ids();
 
@@ -56,7 +72,7 @@ fn main() {
 
             for pid in differ {
                 println!("New processes (pids): {}", pid);
-                proc.push(pid);
+                proc.push(*pid);
             }
 
             let start = Instant::now();
@@ -64,14 +80,8 @@ fn main() {
                 continue;
             }
 
-            let mut quit = String::new();
-            io::stdin()
-                .read_line(&mut quit)
-                .expect("Failed to read");
-            let command = quit.trim();
-            
-            if command == "q"{
-                println!("All new processes: {:#?}", proc);
+            if rx.try_recv().is_ok(){
+                println!("All new processes from this cycle: {:#?}", proc);
                 break;
             }
             
