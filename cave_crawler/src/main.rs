@@ -50,10 +50,11 @@ fn main() {
                 }
             });
             println!("Press 'q' to end.");
+            let mut proc: Vec<u32> = vec![];
+
         loop {
             let duration = Duration::from_secs(2);
 
-            let mut proc: Vec<u32> = vec![];
 
             let ids_a = get_process_ids();
 
@@ -88,6 +89,8 @@ fn main() {
             
             
         }
+        println!("All new processes from this cycle: {:#?}", proc);
+
     }
     else{
         let mut count = 10;
