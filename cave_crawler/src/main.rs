@@ -3,7 +3,7 @@ use std::fs;
 use std::io;
 use std::io::Write;
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 fn get_process_ids() -> HashSet<u32> {
     let mut ids: HashSet<u32> = HashSet::new();
@@ -38,6 +38,7 @@ fn main() {
     let num: i32 = cont.trim().parse().unwrap();
     if num == 1{
         loop {
+            let duration = Duration::from_secs(2);
             println!("Press 'q' to end.");
             io::stdout().flush().unwrap();
 
@@ -70,6 +71,11 @@ fn main() {
                 println!("All new processes: {:#?}", proc);
                 break;
             }
+            let start = Instant::now();
+            if start.elapsed() < duration{
+                continue;
+            }
+            
             
         }
     }
