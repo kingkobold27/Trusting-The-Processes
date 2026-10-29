@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 use std::fs;
 use std::io;
+use std::io::Write;
 use std::thread;
 use std::time::Duration;
 
@@ -36,8 +37,17 @@ fn main() {
         .expect("Failed to read");
     let num: i32 = cont.trim().parse().unwrap();
     if num == 1{
-        let start = true;
-        while start{
+        loop {
+            println!("Press 'q' to end.");
+            io::stdout().flush().unwrap();
+
+            let mut quit = String::new();
+            io::stdin()
+                .read_line(&mut quit)
+                .expect("Failed to read");
+            let command = quit.trim();
+
+            let mut proc: Vec<&u32> = vec![];
 
             let ids_a = get_process_ids();
 
@@ -53,7 +63,14 @@ fn main() {
 
             for pid in differ {
                 println!("New processes (pids): {}", pid);
+                proc.push(pid);
             }
+
+            if command == "q"{
+                println!("All new processes: {:#?}", proc);
+                break;
+            }
+            
         }
     }
     else{
