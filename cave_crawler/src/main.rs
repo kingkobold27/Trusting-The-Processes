@@ -41,6 +41,27 @@ fn get_process_names(pid: u32) -> Option<String>{
     //reads the directory names as strings
 }
 
+fn get_process_parent_id(pid: u32) -> Option<u32>{
+    let path = format!("/proc/{}/status", pid);
+
+    let yargle = fs::read_to_string(path).ok()?;
+
+    for line in yargle.lines(){
+        if line.starts_with("PPid:"){
+            if let Some((_, value)) = line.split_once(":"){
+                let ppid = value.trim().parse::<u32>();
+                return ppid.ok();
+
+            }
+
+        }
+
+    }
+
+    
+    None
+}
+
 
 fn main() {
     if let Some(name) = get_process_names(std::process::id()){
@@ -67,18 +88,19 @@ fn main() {
                 }
             });
             println!("Press 'q' to end.");
-            let mut proc: Vec<(u32,String)> = vec![];
-            let mut missing: Vec<(u32,String)> = vec![];
+            let mut proc: Vec<(u32,String,u32)> = vec![];
+            let mut missing: Vec<(u32,String,u32)> = vec![];
 
 
             let mut ids_a: HashSet<u32> = get_process_ids();
             
 
-            let mut processes: HashMap<u32, String> = HashMap::new();
+            let mut processes: HashMap<u32, (String, u32)> = HashMap::new();
 
             for pid in &ids_a{
                 let name = get_process_names(*pid).unwrap_or("Unknown".to_string());
-                processes.insert(*pid, name);
+                let ppid = get_process_parent_id(*pid).unwrap_or(0);
+                processes.insert(*pid, (name, ppid));
             }
 
             // let duration = Duration::from_secs(2);
@@ -106,17 +128,19 @@ fn main() {
                 println!("New processes (pids): {}", pid);
                 let proname: Option<String> = get_process_names(*pid);
                 let thename = proname.unwrap_or("Unknown".to_string());
+                let ppid = get_process_parent_id(*pid).unwrap_or(0);
                 println!("Process name: {}", thename);
-                processes.insert(*pid, thename.clone());
-                proc.push((*pid, thename));
+                println!("Parent process id: {}", ppid);
+                processes.insert(*pid, (thename.clone(), ppid));
+                proc.push((*pid, thename, ppid));
             }
 
             for pid in gone{
                 println!("Missing processes (pids): {}", pid);
 
-                if let Some(name) = processes.remove(pid){
+                if let Some((name, ppid)) = processes.remove(pid){
                     println!("Process Name: {}", name);
-                    missing.push((*pid, name.clone()));
+                    missing.push((*pid, name, ppid));
                 }
             }
 
@@ -135,7 +159,14 @@ fn main() {
             ids_a = ids_b;
         }
         println!("All new processes from this cycle: {:#?}", proc);
-        println!("Processes that disappeared in this cyle: {:#?}", missing)
+        for pro in proc{
+            println!("Process ID: {} | Process Name: {} | Parent ID: {}", pro.0, pro.1, pro.2);
+        }
+        println!("Processes that disappeared in this cyle: {:#?}", missing);
+        for pro in missing{
+            println!("Process ID: {} |", pro.0);
+            print!("Process Name: {}", pro.1);
+        }
 
     }
     else{
