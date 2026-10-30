@@ -5,6 +5,7 @@ use std::thread;
 use std::time::Duration;
 // use std::time::Instant;
 use crossbeam_channel::unbounded;
+use std::collections::HashMap;
 
 fn get_process_ids() -> HashSet<u32> {
     let mut ids: HashSet<u32> = HashSet::new();
@@ -66,23 +67,32 @@ fn main() {
                 }
             });
             println!("Press 'q' to end.");
-            let mut proc: Vec<u32> = vec![];
-            let mut missing: Vec<u32> = vec![];
+            let mut proc: Vec<(u32,String)> = vec![];
+            let mut missing: Vec<(u32,String)> = vec![];
 
 
             let mut ids_a: HashSet<u32> = get_process_ids();
+            
 
+            let mut processes: HashMap<u32, String> = HashMap::new();
+
+            for pid in &ids_a{
+                let name = get_process_names(*pid).unwrap_or("Unknown".to_string());
+                processes.insert(*pid, name);
+            }
 
             // let duration = Duration::from_secs(2);
 
-        loop {
 
+        loop {
+            
             thread::sleep(Duration::from_secs(2));
             if rx.try_recv().is_ok(){
                 break;
             }
 
             let ids_b = get_process_ids();
+            
 
             let differ = ids_b.difference(&ids_a);
 
@@ -94,12 +104,20 @@ fn main() {
 
             for pid in differ {
                 println!("New processes (pids): {}", pid);
-                proc.push(*pid);
+                let proname: Option<String> = get_process_names(*pid);
+                let thename = proname.unwrap_or("Unknown".to_string());
+                println!("Process name: {}", thename);
+                processes.insert(*pid, thename.clone());
+                proc.push((*pid, thename));
             }
 
             for pid in gone{
                 println!("Missing processes (pids): {}", pid);
-                missing.push(*pid);
+
+                if let Some(name) = processes.remove(pid){
+                    println!("Process Name: {}", name);
+                    missing.push((*pid, name.clone()));
+                }
             }
 
             // let start = Instant::now();
