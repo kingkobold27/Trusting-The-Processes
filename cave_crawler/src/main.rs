@@ -62,6 +62,35 @@ fn get_process_parent_id(pid: u32) -> Option<u32>{
     None
 }
 
+fn get_thread_id(pid: u32) -> HashSet<u32>{
+    let mut ids: HashSet<u32> = HashSet::new();
+
+    let path = format!("/proc/{}/task", pid);
+
+    let entries = match fs::read_dir(path) {
+        Ok(entries) => entries,
+        Err(_) => return ids,
+    };
+
+    for entry in entries{
+        let entry = match entry{
+            Ok(entry) => entry,
+            Err(_) => continue
+        };
+
+        let id = entry.file_name();
+        let id = id.to_string_lossy();
+
+        if let Ok(thread) = id.parse::<u32>(){
+            ids.insert(thread);
+        }
+    }
+    
+
+    ids
+
+}
+
 
 fn main() {
     if let Some(name) = get_process_names(std::process::id()){
@@ -95,16 +124,16 @@ fn main() {
             let mut ids_a: HashSet<u32> = get_process_ids();
             
 
-            let mut processes: HashMap<u32, (String, u32)> = HashMap::new();
+            let mut processes: HashMap<u32, (String, u32, HashSet<u32>)> = HashMap::new();
 
             for pid in &ids_a{
                 let name = get_process_names(*pid).unwrap_or("Unknown".to_string());
                 let ppid = get_process_parent_id(*pid).unwrap_or(0);
-                processes.insert(*pid, (name, ppid));
+                let threads = get_thread_id(*pid);
+                processes.insert(*pid, (name, ppid, threads));
             }
 
             // let duration = Duration::from_secs(2);
-
 
         loop {
             
@@ -115,6 +144,23 @@ fn main() {
 
             let ids_b = get_process_ids();
             
+            for pid in &ids_b{
+                if let Some(process) = processes.get_mut(pid) {
+                    let old_threads = &process.2;
+                    let new_threads = get_thread_id(*pid);
+                    
+                    let new = new_threads.difference(&old_threads);
+                    let gone = old_threads.difference(&new_threads);
+
+                    for tid in new{
+                        println!("New Threads detected: PID {} | TID {}", pid, tid);
+                    }
+                    for tid in gone{
+                        println!("Thread Terminated: PID {} | TID {}", pid, tid);
+                    }
+                    process.2 = new_threads;
+                }
+            }
 
             let differ = ids_b.difference(&ids_a);
 
@@ -129,17 +175,26 @@ fn main() {
                 let proname: Option<String> = get_process_names(*pid);
                 let thename = proname.unwrap_or("Unknown".to_string());
                 let ppid = get_process_parent_id(*pid).unwrap_or(0);
+                let thread = get_thread_id(*pid);
                 println!("Process name: {}", thename);
                 println!("Parent process id: {}", ppid);
-                processes.insert(*pid, (thename.clone(), ppid));
+                for thr in &thread{
+                    println!("Thread IDs: {}", thr);
+                }
+                
+                processes.insert(*pid, (thename.clone(), ppid, thread));
                 proc.push((*pid, thename, ppid));
             }
 
             for pid in gone{
                 println!("Missing processes (pids): {}", pid);
 
-                if let Some((name, ppid)) = processes.remove(pid){
+                if let Some((name, ppid, thread)) = processes.remove(pid){
                     println!("Process Name: {}", name);
+                    println!("Parent process id: {}", ppid);
+                    for thr in &thread{
+                        println!("Thread IDs: {}", thr);
+                }
                     missing.push((*pid, name, ppid));
                 }
             }
@@ -164,8 +219,7 @@ fn main() {
         }
         println!("Processes that disappeared in this cyle: {:#?}", missing);
         for pro in missing{
-            println!("Process ID: {} |", pro.0);
-            print!("Process Name: {}", pro.1);
+            println!("Process ID: {} | Process Name: {} | Parent ID: {}", pro.0, pro.1, pro.2);
         }
 
     }
