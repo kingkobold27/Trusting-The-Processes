@@ -228,7 +228,7 @@ fn main() {
         );
     }
 
-    println!("New Processes Detected: {}", missing.len());
+    println!("Missing Processes Detected: {}", missing.len());
     for (pid, name, ppid) in &missing {
         println!(
             "Process ID: {} | Process Name: {} | Parent ID: {}",
