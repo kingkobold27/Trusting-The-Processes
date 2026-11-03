@@ -224,6 +224,7 @@ fn main() -> std::io::Result<()>{
     let mut file = File::create("log.txt")?;
 
     println!("New Processes Detected: {}", proc.len());
+    writeln!(file, "New Processes Detected: {}", proc.len())?;
     for (pid, name, ppid) in &proc {
         println!(
             "Process ID: {} | Process Name: {} | Parent ID: {}",
@@ -234,6 +235,7 @@ fn main() -> std::io::Result<()>{
     }
 
     println!("Missing Processes Detected: {}", missing.len());
+    writeln!(file, "Missing Processes Detected: {}", proc.len())?;
     for (pid, name, ppid) in &missing {
         println!(
             "Process ID: {} | Process Name: {} | Parent ID: {}",
