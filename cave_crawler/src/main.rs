@@ -6,6 +6,8 @@ use std::time::Duration;
 // use std::time::Instant;
 use crossbeam_channel::unbounded;
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::prelude::*; 
 
 fn get_process_ids() -> HashSet<u32> {
     let mut ids: HashSet<u32> = HashSet::new();
@@ -219,29 +221,30 @@ fn main() -> std::io::Result<()>{
         ids_a = ids_b;
         //reset loop by making ids_a (which is intialized outside the loop) equal to the current ids_b
     }
+    let mut file = File::create("log.txt")?;
 
     println!("New Processes Detected: {}", proc.len());
     for (pid, name, ppid) in &proc {
-        let proprint = format!("Process ID: {} | Process Name: {} | Parent ID: {}",
-            pid, name, ppid);
         println!(
             "Process ID: {} | Process Name: {} | Parent ID: {}",
             pid, name, ppid,
         );
-        fs::write("log.txt", proprint)?;
+        writeln!(file, "Process ID: {} | Process Name: {} | Parent ID: {}",
+            pid, name, ppid)?;
     }
 
     println!("Missing Processes Detected: {}", missing.len());
     for (pid, name, ppid) in &missing {
-        let proprint = format!("Process ID: {} | Process Name: {} | Parent ID: {}",
-            pid, name, ppid);
         println!(
             "Process ID: {} | Process Name: {} | Parent ID: {}",
             pid, name, ppid,
         );
-        fs::write("log.txt", proprint)?;
+        writeln!(file, "Process ID: {} | Process Name: {} | Parent ID: {}",
+            pid, name, ppid)?;
 
     }
+    println!("Log File Written!");
+    println!("Check log.txt");
     //print the stuff
     Ok(())
 }
