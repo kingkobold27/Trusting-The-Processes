@@ -92,11 +92,9 @@ The application then exits monitoring and displays a summary of the process even
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/<YOUR_USERNAME>/Trusting-The-Processes.git
+git clone https://github.com/kingkobold27/Trusting-The-Processes.git
 cd Trusting-The-Processes
 ```
-
-Replace `<YOUR_USERNAME>` with your GitHub username.
 
 ### Build
 
@@ -115,8 +113,6 @@ Alternatively, run the compiled binary directly:
 ```bash
 ./target/release/cave_crawler
 ```
-
-The executable name assumes the Cargo package is named `cave_crawler`.
 
 ## Example Output
 
