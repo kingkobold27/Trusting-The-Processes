@@ -98,7 +98,7 @@ fn get_thread_id(pid: u32) -> HashSet<u32> {
     //return hashset
 }
 
-fn main() {
+fn main() -> std::io::Result<()>{
     let (tx, rx) = unbounded();
     //send and recieve input
     thread::spawn(move || {
@@ -222,18 +222,26 @@ fn main() {
 
     println!("New Processes Detected: {}", proc.len());
     for (pid, name, ppid) in &proc {
+        let proprint = format!("Process ID: {} | Process Name: {} | Parent ID: {}",
+            pid, name, ppid);
         println!(
             "Process ID: {} | Process Name: {} | Parent ID: {}",
-            pid, name, ppid
+            pid, name, ppid,
         );
+        fs::write("log.txt", proprint)?;
     }
 
     println!("Missing Processes Detected: {}", missing.len());
     for (pid, name, ppid) in &missing {
+        let proprint = format!("Process ID: {} | Process Name: {} | Parent ID: {}",
+            pid, name, ppid);
         println!(
             "Process ID: {} | Process Name: {} | Parent ID: {}",
-            pid, name, ppid
+            pid, name, ppid,
         );
+        fs::write("log.txt", proprint)?;
+
     }
     //print the stuff
+    Ok(())
 }
