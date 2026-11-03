@@ -81,6 +81,12 @@ When the user enters `q`, a shutdown signal is sent through a `crossbeam-channel
 
 The application then exits monitoring and displays a summary of the process events detected during the session.
 
+### 6. Log Operation
+
+The application will send the logged name, pids, and ppids to log.txt following shutdown.
+
+- WARNING: This will override each session!
+
 ## Installation
 
 ### Requirements
@@ -157,12 +163,10 @@ Current limitations include:
 - **Filesystem Access:** Process information may be unavailable because of permissions or process termination during a scan.
 - **Thread Snapshot Errors:** Failed thread-directory reads return empty sets, so thread observations may be incomplete.
 - **PID Reuse:** Rapid reuse of process IDs may cause separate process lifetimes to be treated as one.
-- **No Persistent Logging:** Events are printed to the terminal and stored in memory during execution, but are not exported to a log file.
 - **No Resource Monitoring:** CPU usage, memory consumption, and network activity are not currently tracked.
 
 ## Potential Future Improvements
 
-- Export monitoring events to structured log files.
 - Add timestamps to process and thread events.
 - Improve error handling for inaccessible or changing `/proc` entries.
 - Track CPU and memory usage per process.
